@@ -1,0 +1,55 @@
+log log.Pt100_perf_300-1000K
+units          metal
+atom_style     atomic
+dimension      3
+boundary       p p p
+newton on
+
+region region block 0 100 0 100 0 100 units box
+create_box 1 region
+create_atoms 1 random 100 123456 region
+# read_data      Pt100_25x25x25.dat
+
+mass 1 195.08
+replicate 1 1 1
+
+pair_style flare
+pair_coeff * * lmp_0.0075.flare
+
+comm_style tiled
+balance 1.1 rcb
+
+#change_box all x scale 1.1 y scale 1.1 z scale 1.0 remap
+
+# fix the bottom of the metal layer
+region bottom block INF INF INF INF INF 70 units box
+group bottom   region bottom
+group slab subtract all bottom
+fix fix_bottom bottom setforce 0 0 0
+fix 1 slab momentum 1 linear 1 1 1 angular
+
+thermo 200
+thermo_style custom step temp pe etotal press lx ly vol spcpu
+
+timestep 0.005
+
+min_style cg
+minimize 1e-12 1e-12 1000000 1000000
+
+velocity slab create 300.0 4928459 rot yes dist gaussian
+
+dump 1 all custom 200 Pt100_perf_300-1000K.lammpstrj id x y z
+    fix 2 slab nvt temp 300 1000 0.1
+        run 7000000 # 35 ns
+        write_data equil1_Pt100_perf_300-1000K_35ns.dat
+    unfix 2
+    fix 2 slab nvt temp 1000 1000 0.1
+        run 2000000 # 10 ns
+        write_data prod_Pt100_perf_1000-1000K_10ns.dat
+    unfix 2
+    fix 2 slab nvt temp 1000 300 0.1
+        run 7000000 # 35 ns
+        write_data quench_Pt100_perf_1000-300K_35ns.dat
+    unfix 2
+undump 1
+
