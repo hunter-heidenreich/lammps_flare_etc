@@ -5,10 +5,7 @@ dimension      3
 boundary       p p p
 newton on
 
-region region block 0 100 0 100 0 100 units box
-create_box 1 region
-create_atoms 1 random 100 123456 region
-# read_data      Pt100_25x25x25.dat
+read_data      Pt100_25x25x25.dat
 
 mass 1 195.08
 replicate 1 1 1
