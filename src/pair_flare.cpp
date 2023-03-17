@@ -335,7 +335,6 @@ void PairFLARE::read_file(char *filename) {
 
   // Check the relationship between the power spectrum and beta.
   int beta_check;
-  fprintf(stderr, "power: %d\n", power);
   if (power == 1) {
     beta_check = n_descriptors;
   } else if (power == 2) {
